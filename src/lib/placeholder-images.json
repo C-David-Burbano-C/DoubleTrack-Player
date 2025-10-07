@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "creative-minds",
+      "description": "Abstract colorful brain illustration",
+      "imageUrl": "https://picsum.photos/seed/1/400/400",
+      "imageHint": "abstract art"
+    },
+    {
+      "id": "jazzy-frenchy",
+      "description": "A jazz club scene in Paris at night",
+      "imageUrl": "https://picsum.photos/seed/2/400/400",
+      "imageHint": "jazz club"
+    },
+    {
+      "id": "tomorrow",
+      "description": "Futuristic cityscape with flying vehicles",
+      "imageUrl": "https://picsum.photos/seed/3/400/400",
+      "imageHint": "futuristic cityscape"
+    },
+    {
+      "id": "once-again",
+      "description": "A looping animation of a clock turning back",
+      "imageUrl": "https://picsum.photos/seed/4/400/400",
+      "imageHint": "clock loop"
+    },
+    {
+      "id": "dreams",
+      "description": "A surreal landscape with floating islands",
+      "imageUrl": "https://picsum.photos/seed/5/400/400",
+      "imageHint": "surreal landscape"
+    },
+    {
+      "id": "summer",
+      "description": "A vibrant beach scene with palm trees",
+      "imageUrl": "https://picsum.photos/seed/6/400/400",
+      "imageHint": "beach summer"
+    }
+  ]
 }
