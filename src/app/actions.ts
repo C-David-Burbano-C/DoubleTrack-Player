@@ -2,12 +2,7 @@
 
 import { initialTracks } from '@/lib/tracks';
 import type { Track } from '@/lib/types';
-
-// This is a placeholder for a real AI implementation.
-// In a real-world scenario, you would use a GenAI library to:
-// 1. Get embeddings for all tracks (based on title, artist, genre, lyrics, etc.).
-// 2. Get an embedding for the user's mood query.
-// 3. Find the closest matching tracks using vector similarity search.
+import { generatePlaylist } from '@/ai/ai-playlist-curation';
 
 export async function generatePlaylistAction(mood: string): Promise<{
   success: boolean;
@@ -17,21 +12,30 @@ export async function generatePlaylistAction(mood: string): Promise<{
   console.log(`Generating playlist for mood: ${mood}`);
 
   try {
-    // Simulate AI processing time
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Simulate AI logic by shuffling the existing tracks
-    const shuffledTracks = [...initialTracks].sort(() => Math.random() - 0.5);
+    const songList = initialTracks.map(track => track.title);
     
-    // In a real scenario, you would filter and order based on AI model output
-    const newPlaylist = shuffledTracks.slice(0, 5); // Return a playlist of 5 songs
+    const result = await generatePlaylist({
+      moodOrGenre: mood,
+      songList: songList,
+      playlistLength: 5,
+    });
 
-    if (newPlaylist.length === 0) {
+    if (!result.playlist || result.playlist.length === 0) {
       return { success: false, error: 'Could not find any songs for this mood.' };
+    }
+
+    // Map the returned song titles back to full Track objects
+    const newPlaylist = result.playlist.map(title => {
+      return initialTracks.find(track => track.title === title);
+    }).filter((track): track is Track => track !== undefined);
+    
+    if (newPlaylist.length === 0) {
+      return { success: false, error: 'Could not match generated songs to library.' };
     }
 
     return { success: true, playlist: newPlaylist };
   } catch (e) {
+    console.error(e);
     const error = e instanceof Error ? e.message : 'An unknown error occurred.';
     return { success: false, error };
   }
