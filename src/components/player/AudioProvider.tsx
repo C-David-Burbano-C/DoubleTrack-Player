@@ -28,6 +28,8 @@ type AudioContextType = {
   seek: (time: number) => void;
   setVolume: (volume: number) => void;
   setPlaylist: (tracks: Track[]) => void;
+  playMode: 'linear' | 'shuffle';
+  setPlayMode: (mode: 'linear' | 'shuffle') => void;
 };
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -44,6 +46,7 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
   const [playlist, setInternalPlaylist] = useState(
     () => new DoublyLinkedList<Track>(initialTracks)
   );
+  const [playMode, setPlayMode] = useState<'linear' | 'shuffle'>('linear');
   const [currentTrackNode, setCurrentTrackNode] = useState<Node<Track> | null>(
     playlist.head
   );
@@ -74,6 +77,27 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
       audio.removeEventListener('ended', handleEnded);
       audio.pause();
     };
+  }, []);
+
+  // Load tracks (initial + uploaded) from API
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/tracks');
+        const data = await res.json();
+        if (!cancelled && data?.success) {
+          const tracks: Track[] = data.tracks;
+          const newPlaylist = new DoublyLinkedList(tracks);
+          setInternalPlaylist(newPlaylist);
+          setCurrentTrackNode(newPlaylist.head);
+        }
+      } catch (e) {
+        console.error('Failed to load tracks', e);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -107,20 +131,31 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
   }, [isPlaying, play, pause]);
 
   const playNext = useCallback(() => {
+    if (playMode === 'shuffle') {
+      const arr = playlist.toArray();
+      if (arr.length === 0) return;
+      const rand = arr[Math.floor(Math.random() * arr.length)];
+      const node = playlist.find((t) => t.id === rand.id);
+      if (node) {
+        play(node);
+      }
+      return;
+    }
+
     if (currentTrackNode?.next) {
       play(currentTrackNode.next);
     } else {
       // Loop to the beginning
-      play(playlist.head);
+  play(playlist.head || undefined);
     }
-  }, [currentTrackNode, playlist.head, play]);
+  }, [currentTrackNode, playlist, play, playMode]);
 
   const playPrev = useCallback(() => {
     if (currentTrackNode?.prev) {
       play(currentTrackNode.prev);
     } else {
        // Loop to the end
-      play(playlist.tail);
+  play(playlist.tail || undefined);
     }
   }, [currentTrackNode, playlist.tail, play]);
 
@@ -165,7 +200,9 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
       playPrev,
       seek,
       setVolume,
-      setPlaylist
+      setPlaylist,
+      playMode,
+      setPlayMode,
     }),
     [
       playlist,
@@ -182,6 +219,8 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
       seek,
       setVolume,
       setPlaylist,
+      playMode,
+      setPlayMode,
     ]
   );
 

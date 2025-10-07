@@ -44,7 +44,7 @@ export default function PlayerControls() {
 
 
   return (
-    <div className="w-full max-w-sm space-y-4">
+    <div className="w-full max-w-sm space-y-4 glass p-4 rounded-lg neon">
        <div className="w-full space-y-1">
         <Slider
             value={[progress]}
@@ -60,23 +60,23 @@ export default function PlayerControls() {
         </div>
       </div>
       <div className="flex items-center justify-center gap-4">
-        <Button variant="ghost" size="icon" onClick={playPrev} aria-label="Previous track">
+        <Button variant="ghost" size="icon" onClick={playPrev} aria-label="Previous track" className="text-muted-foreground">
           <SkipBack className="h-6 w-6" />
         </Button>
         <Button
           variant="default"
           size="icon"
-          className="h-16 w-16 rounded-full bg-primary hover:bg-primary/90 shadow-lg"
+          className="h-16 w-16 rounded-full bg-gradient-to-br from-indigo-500 to-sky-400 shadow-[0_8px_30px_rgba(59,130,246,0.18)]"
           onClick={togglePlayPause}
-          aria-label={isPlaying ? "Pause" : "Play"}
+          aria-label={isPlaying ? 'Pause' : 'Play'}
         >
           {isPlaying ? (
-            <Pause className="h-8 w-8 fill-primary-foreground" />
+            <Pause className="h-8 w-8 text-white" />
           ) : (
-            <Play className="h-8 w-8 fill-primary-foreground" />
+            <Play className="h-8 w-8 text-white" />
           )}
         </Button>
-        <Button variant="ghost" size="icon" onClick={playNext} aria-label="Next track">
+        <Button variant="ghost" size="icon" onClick={playNext} aria-label="Next track" className="text-muted-foreground">
           <SkipForward className="h-6 w-6" />
         </Button>
       </div>

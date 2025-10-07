@@ -21,7 +21,7 @@ export function TrackInfo() {
       >
         <div
           className={cn(
-            'relative h-full w-full overflow-hidden rounded-full shadow-lg ring-4 ring-primary/20'
+            'relative h-full w-full overflow-hidden rounded-full shadow-2xl ring-2 ring-primary/30 glass-accent neon'
           )}
         >
           {track?.albumArtUrl ? (
@@ -32,9 +32,9 @@ export function TrackInfo() {
               height={256}
               data-ai-hint={track.albumArtHint}
               className={cn(
-                'h-full w-full object-cover transition-transform duration-1000',
-                isPlaying && 'animate-spin-slow'
-              )}
+                  'h-full w-full object-cover transition-transform duration-1000',
+                  isPlaying && 'animate-spin-slow'
+                )}
               priority
             />
           ) : (
@@ -49,8 +49,8 @@ export function TrackInfo() {
         />
       </div>
 
-      <div className="space-y-1">
-        <h2 className="font-headline text-2xl font-bold tracking-tight text-foreground truncate max-w-[250px]">
+        <div className="space-y-1">
+        <h2 className="font-headline text-2xl font-bold tracking-tight text-foreground truncate max-w-[250px] glow">
           {track?.title || 'Select a song'}
         </h2>
         <p className="text-sm text-muted-foreground">

@@ -3,35 +3,54 @@
 import { initialTracks } from '@/lib/tracks';
 import type { Track } from '@/lib/types';
 
+import fs from 'fs/promises';
+import path from 'path';
 
-// This would be the action for handling file uploads.
-// It requires a proper backend setup with file storage (e.g., Firebase Storage, S3).
 export async function uploadFileAction(formData: FormData) {
-    'use server'
-    //
-    // const file = formData.get('audioFile') as File;
-    //
-    // if (!file) {
-    //     return { success: false, error: 'No file provided.' };
-    // }
-    //
-    // // 1. Upload file to your storage bucket
-    // // const uploadResult = await uploadToStorage(file);
-    //
-    // // 2. (Optional) Extract metadata like ID3 tags
-    // // const metadata = await extractMetadata(file);
-    //
-    // // 3. Save track information to your database (e.g., Firestore)
-    // // await db.collection('tracks').add({
-    // //     title: metadata.title,
-    // //     artist: metadata.artist,
-    // //     url: uploadResult.publicUrl,
-    // //     ...
-    // // });
-    //
-    console.log("File upload received. Backend implementation needed.", formData.get('audioFile'));
-    
-    // Simulate a successful upload for UI purposes
-    await new Promise(res => setTimeout(res, 1000));
-    return { success: true, message: "File uploaded successfully (simulated)." };
+    'use server';
+
+    try {
+        const file: any = formData.get('audioFile');
+
+        if (!file) {
+            return { success: false, error: 'No file provided.' };
+        }
+
+        // Basic validation: ensure it's an audio file and not too large
+        const type: string | undefined = file.type;
+        const size: number | undefined = file.size;
+
+        if (!type || !type.startsWith('audio/')) {
+            return { success: false, error: 'Uploaded file is not an audio type.' };
+        }
+
+        const MAX_BYTES = 50 * 1024 * 1024; // 50 MB
+        if (typeof size === 'number' && size > MAX_BYTES) {
+            return { success: false, error: 'File is too large (limit 50MB).' };
+        }
+
+        // Ensure uploads directory exists inside public
+        const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+        await fs.mkdir(uploadsDir, { recursive: true });
+
+        // Create a safe filename
+        const originalName = (file.name || `upload-${Date.now()}`).toString();
+        const sanitized = originalName.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        const filename = `${Date.now()}-${sanitized}`;
+        const destPath = path.join(uploadsDir, filename);
+
+        // Read file contents and write to disk
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        await fs.writeFile(destPath, buffer);
+
+        const publicUrl = `/uploads/${filename}`;
+
+        console.log('Saved uploaded file to', destPath);
+
+        return { success: true, message: 'File uploaded successfully.', url: publicUrl };
+    } catch (err: any) {
+        console.error('uploadFileAction error', err);
+        return { success: false, error: String(err?.message || err) };
+    }
 }

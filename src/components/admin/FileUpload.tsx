@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UploadCloud, FileAudio, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+// Keep server action import for environments where it's preferred, but
+// use the API route for large uploads in dev/production.
 import { uploadFileAction } from '@/app/actions';
 import { cn } from '@/lib/utils';
 
@@ -72,21 +74,21 @@ export function FileUpload() {
     const formData = new FormData();
     formData.append('audioFile', values.audioFile);
     
-    const result = await uploadFileAction(formData);
+    try {
+      // Use API route to avoid Server Actions body size limits
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const result = await res.json();
 
-    if (result.success) {
-      toast({
-        title: 'Upload Successful',
-        description: result.message,
-      });
-      reset();
-      setFileName(null);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Upload Failed',
-        description: result.error,
-      });
+      if (res.ok && result.success) {
+        toast({ title: 'Upload Successful', description: result.message || 'File uploaded.' });
+        if (result.url) console.log('Uploaded file URL:', result.url);
+        reset();
+        setFileName(null);
+      } else {
+        toast({ variant: 'destructive', title: 'Upload Failed', description: result.error || 'Unknown error' });
+      }
+    } catch (err) {
+      toast({ variant: 'destructive', title: 'Upload Failed', description: String(err) });
     }
   };
 
