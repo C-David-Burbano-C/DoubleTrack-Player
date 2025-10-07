@@ -15,8 +15,8 @@ export function TrackInfo() {
     <div className="flex w-full flex-col items-center space-y-4 text-center">
       <div
         className={cn(
-          'relative h-48 w-48 transition-transform duration-300 md:h-64 md:w-64',
-          isPlaying && 'scale-105'
+          'relative h-48 w-48 transition-transform duration-500 ease-in-out md:h-64 md:w-64',
+          isPlaying ? 'scale-105' : 'scale-100'
         )}
       >
         <div
@@ -32,7 +32,7 @@ export function TrackInfo() {
               height={256}
               data-ai-hint={track.albumArtHint}
               className={cn(
-                'h-full w-full object-cover',
+                'h-full w-full object-cover transition-transform duration-1000',
                 isPlaying && 'animate-spin-slow'
               )}
               priority
