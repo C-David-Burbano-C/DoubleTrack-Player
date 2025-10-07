@@ -45,9 +45,19 @@ export default function PlayerControls() {
 
   return (
     <div className="w-full max-w-sm space-y-4">
-      <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{formatTime(progress)}</span>
-          <span>{formatTime(duration)}</span>
+       <div className="w-full space-y-1">
+        <Slider
+            value={[progress]}
+            max={duration || 1}
+            step={1}
+            onValueChange={handleSeek}
+            className="w-full cursor-pointer"
+            aria-label="Track progress"
+        />
+        <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{formatTime(progress)}</span>
+            <span>{formatTime(duration)}</span>
+        </div>
       </div>
       <div className="flex items-center justify-center gap-4">
         <Button variant="ghost" size="icon" onClick={playPrev} aria-label="Previous track">
