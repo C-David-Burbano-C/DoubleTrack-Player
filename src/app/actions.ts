@@ -2,44 +2,7 @@
 
 import { initialTracks } from '@/lib/tracks';
 import type { Track } from '@/lib/types';
-import { generatePlaylist } from '@/ai/ai-playlist-curation';
 
-export async function generatePlaylistAction(mood: string): Promise<{
-  success: boolean;
-  playlist?: Track[];
-  error?: string;
-}> {
-  console.log(`Generating playlist for mood: ${mood}`);
-
-  try {
-    const songList = initialTracks.map(track => track.title);
-    
-    const result = await generatePlaylist({
-      moodOrGenre: mood,
-      songList: songList,
-      playlistLength: 5,
-    });
-
-    if (!result.playlist || result.playlist.length === 0) {
-      return { success: false, error: 'Could not find any songs for this mood.' };
-    }
-
-    // Map the returned song titles back to full Track objects
-    const newPlaylist = result.playlist.map(title => {
-      return initialTracks.find(track => track.title === title);
-    }).filter((track): track is Track => track !== undefined);
-    
-    if (newPlaylist.length === 0) {
-      return { success: false, error: 'Could not match generated songs to library.' };
-    }
-
-    return { success: true, playlist: newPlaylist };
-  } catch (e) {
-    console.error(e);
-    const error = e instanceof Error ? e.message : 'An unknown error occurred.';
-    return { success: false, error };
-  }
-}
 
 // This would be the action for handling file uploads.
 // It requires a proper backend setup with file storage (e.g., Firebase Storage, S3).

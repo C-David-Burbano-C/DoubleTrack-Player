@@ -3,23 +3,11 @@ import { useState } from 'react';
 import { useAudio } from './AudioProvider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Search, Wand2, Music, AudioLines } from 'lucide-react';
+import { Search, Music, AudioLines } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { Track } from '@/lib/types';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { generatePlaylistAction } from '@/app/actions';
 
 export function PlaylistView() {
   const { playlist, currentTrackNode, play, isPlaying } = useAudio();
@@ -45,7 +33,6 @@ export function PlaylistView() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <AIPlaylistGenerator />
       </div>
       <ScrollArea className="flex-1">
         <div className="space-y-2 pr-4">
@@ -96,81 +83,5 @@ export function PlaylistView() {
         </div>
       </ScrollArea>
     </div>
-  );
-}
-
-function AIPlaylistGenerator() {
-  const { setPlaylist } = useAudio();
-  const { toast } = useToast();
-  const [mood, setMood] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-
-  const handleSubmit = async () => {
-    if (!mood) {
-      toast({
-        variant: 'destructive',
-        title: 'Mood is required',
-        description: 'Please enter a mood to generate a playlist.',
-      });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const result = await generatePlaylistAction(mood);
-      if (result.success && result.playlist) {
-        setPlaylist(result.playlist);
-        toast({
-          title: 'Playlist Generated!',
-          description: `Here is your new playlist for a "${mood}" mood.`,
-        });
-        setOpen(false);
-        setMood('');
-      } else {
-        throw new Error(result.error || 'Failed to generate playlist.');
-      }
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Generation Failed',
-        description: (error as Error).message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <Wand2 className="mr-2 h-4 w-4" />
-          AI Playlist
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Generate Playlist with AI</DialogTitle>
-          <DialogDescription>
-            Enter a mood, genre, or vibe, and our AI will curate a playlist for you from your library.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="py-4">
-          <Input 
-            placeholder="e.g., Chill morning, 80s rock, energetic workout"
-            value={mood}
-            onChange={(e) => setMood(e.target.value)}
-          />
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="ghost">Cancel</Button>
-          </DialogClose>
-          <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? 'Generating...' : 'Generate'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }
